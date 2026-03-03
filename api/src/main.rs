@@ -1,7 +1,7 @@
 use std::io::Error;
 use poem::{Route, Server, get, handler, listener::TcpListener, post, web::{Json, Path}};
 
-use store::Store;
+use store::store::Store;
 use crate::request::CreateWebsiteRequest;
 use crate::response::CreateWebsiteResponse;
 
@@ -22,11 +22,12 @@ fn get_website(Path(website_id): Path<String>) -> String {
 fn create_website(Json(data): Json<CreateWebsiteRequest>) -> Json<CreateWebsiteResponse> {
     let url = data.url;
 
-    let store = Store{};
-    let id = store.create_website();
+    let mut store = Store::default().unwrap();
+    let website = store.create_website(1, url).unwrap();
 
     let response = CreateWebsiteResponse {
-        id: String::from(id)
+        message: String::from("SUCCESS"),
+        id: website.id
     };
     Json(response)
 }

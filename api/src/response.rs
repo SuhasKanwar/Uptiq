@@ -3,5 +3,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateWebsiteResponse {
-    pub id: String
+    pub message: String,
+    pub id: i32
 }
