@@ -10,17 +10,17 @@ pub mod response;
 
 #[handler]
 fn index() -> String {
-    format!("Server is running successfully!!!")
+    String::from("Server is running successfully!!!")
 }
 
 #[handler]
 fn sign_up(Json(data): Json<SignUpRequest>) -> Json<SignUpResponse> {
-    let mut s = Store::default().unwrap();
+    let mut s = Store::new().unwrap();
     let id = s.sign_up(data.username, data.password).unwrap();
 
     let response = SignUpResponse {
         message: String::from("SUCCESS"),
-        id: id
+        id
     };
 
     Json(response)
@@ -28,7 +28,7 @@ fn sign_up(Json(data): Json<SignUpRequest>) -> Json<SignUpResponse> {
 
 #[handler]
 fn sign_in(Json(data): Json<SignInRequest>) -> Json<SignInResponse> {
-    let mut s = Store::default().unwrap();
+    let mut s = Store::new().unwrap();
     let success = s.sign_in(data.username, data.password).unwrap();
 
     let response = SignInResponse {
@@ -41,7 +41,7 @@ fn sign_in(Json(data): Json<SignInRequest>) -> Json<SignInResponse> {
 
 #[handler]
 fn get_website(Json(data): Json<GetWebsiteRequest>) -> Json<GetWebsiteResponse> {
-    let mut store = Store::default().unwrap();
+    let mut store = Store::new().unwrap();
     let website = store.get_website(data.website_id).unwrap();
 
     Json(GetWebsiteResponse {
@@ -53,7 +53,7 @@ fn get_website(Json(data): Json<GetWebsiteRequest>) -> Json<GetWebsiteResponse> 
 fn create_website(Json(data): Json<CreateWebsiteRequest>) -> Json<CreateWebsiteResponse> {
     let url = data.url;
 
-    let mut store = Store::default().unwrap();
+    let mut store = Store::new().unwrap();
     let website = store.create_website(1, url).unwrap();
 
     let response = CreateWebsiteResponse {
