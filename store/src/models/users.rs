@@ -13,7 +13,7 @@ struct User {
 impl Store {
     pub fn sign_up(&mut self, username: String, password: String) -> Result<i32, diesel::result::Error> {
         let new_user = User {
-            id: 0,
+            id: 1,
             username,
             password,
         };
