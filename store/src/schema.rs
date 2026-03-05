@@ -14,10 +14,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    user (id) {
+        id -> Int4,
+        username -> Text,
+        password -> Text,
+    }
+}
+
+diesel::table! {
     website (id) {
         id -> Int4,
         url -> Text,
         time_added -> Timestamp,
+        user_id -> Int4,
     }
 }
 
@@ -31,10 +40,12 @@ diesel::table! {
         status -> WebsiteStatus,
         website_id -> Int4,
         region_id -> Int4,
+        created_at -> Timestamp,
     }
 }
 
+diesel::joinable!(website -> user (user_id));
 diesel::joinable!(website_tick -> region (region_id));
 diesel::joinable!(website_tick -> website (website_id));
 
-diesel::allow_tables_to_appear_in_same_query!(region, website, website_tick,);
+diesel::allow_tables_to_appear_in_same_query!(region, user, website, website_tick,);
