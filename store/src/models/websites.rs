@@ -1,21 +1,22 @@
 use crate::store::Store;
 use diesel::prelude::*;
 use chrono::{NaiveDateTime, Utc};
+use uuid::Uuid;
 
 #[derive(Queryable, Insertable, Selectable)]
 #[diesel(table_name = crate::schema::website)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Website {
-    pub id: i32,
+    pub id: String,
     pub url: String,
-    pub user_id: i32,
+    pub user_id: String,
     pub time_added: NaiveDateTime,
 }
 
 impl Store {
-    pub fn create_website(&mut self, user_id: i32, url: String) -> Result<Website, diesel::result::Error> {
+    pub fn create_website(&mut self, user_id: String, url: String) -> Result<Website, diesel::result::Error> {
         let new_website = Website {
-            id: 0,
+            id: Uuid::new_v4().to_string(),
             url,
             user_id,
             time_added: Utc::now().naive_utc(),
@@ -29,7 +30,7 @@ impl Store {
         Ok(website)
     }
 
-    pub fn get_website(&mut self, id: i32) -> Result<Website, diesel::result::Error> {
+    pub fn get_website(&mut self, id: String) -> Result<Website, diesel::result::Error> {
         use crate::schema::website;
 
         let website = website::table

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct SignUpResponse {
     pub message: String,
-    pub id: i32
+    pub id: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -20,5 +20,5 @@ pub struct GetWebsiteResponse {
 #[derive(Serialize, Deserialize)]
 pub struct CreateWebsiteResponse {
     pub message: String,
-    pub id: i32
+    pub id: String
 }
