@@ -1,14 +1,14 @@
 -- Your SQL goes here
 
 -- Alter table website
-ALTER TABLE "website" ADD COLUMN "user_id" INTEGER NOT NULL;
+ALTER TABLE "website" ADD COLUMN "user_id" TEXT NOT NULL;
 
 -- Alter table website_tick
 ALTER TABLE "website_tick" ADD COLUMN "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 -- Create User Table
 CREATE TABLE "user" (
-    "id" SERIAL PRIMARY KEY,
+    "id" TEXT PRIMARY KEY,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL
 );

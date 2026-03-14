@@ -29,16 +29,16 @@ impl Store {
         }
     }
 
-    pub fn sign_in(&mut self, username: String, password: String) -> Result<bool, diesel::result::Error> {
+    pub fn sign_in(&mut self, username: String, password: String) -> Result<i32, diesel::result::Error> {
         let user = user::table
             .filter(user::username.eq(username))
             .select(User::as_select())
             .first(&mut self.conn)?;
 
         if user.password != password {
-            return Ok(false);
+            return Err(diesel::result::Error::NotFound);
         }
 
-        Ok(true)
+        Ok(user.id)
     }
 }

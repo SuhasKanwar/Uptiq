@@ -8,14 +8,14 @@ pub mod sql_types {
 
 diesel::table! {
     region (id) {
-        id -> Int4,
+        id -> Text,
         name -> Text,
     }
 }
 
 diesel::table! {
     user (id) {
-        id -> Int4,
+        id -> Text,
         username -> Text,
         password -> Text,
     }
@@ -23,10 +23,10 @@ diesel::table! {
 
 diesel::table! {
     website (id) {
-        id -> Int4,
+        id -> Text,
         url -> Text,
         time_added -> Timestamp,
-        user_id -> Int4,
+        user_id -> Text,
     }
 }
 
@@ -35,11 +35,11 @@ diesel::table! {
     use super::sql_types::WebsiteStatus;
 
     website_tick (id) {
-        id -> Int4,
+        id -> Text,
         response_time_ms -> Int4,
         status -> WebsiteStatus,
-        website_id -> Int4,
-        region_id -> Int4,
+        website_id -> Text,
+        region_id -> Text,
         created_at -> Timestamp,
     }
 }
