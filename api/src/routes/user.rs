@@ -6,15 +6,15 @@ use store::store::Store;
 use crate::{request::{SignInRequest, SignUpRequest}, response::{SignInResponse, SignUpResponse}};
 
 #[handler]
-pub fn sign_up(Json(data): Json<SignUpRequest>, Data(store): Data<&Arc<Mutex<Store>>>) -> Json<SignUpResponse> {
-    let id = store.lock().unwrap().sign_up(data.username, data.password).unwrap();
+pub fn sign_up(Json(data): Json<SignUpRequest>, Data(store): Data<&Arc<Mutex<Store>>>) -> Result<Json<SignUpResponse>, Error> {
+    let id = store.lock().unwrap().sign_up(data.username, data.password).map_err(|_| Error::from_status(StatusCode::CONFLICT))?;
 
     let response = SignUpResponse {
         message: String::from("SUCCESS"),
         id
     };
 
-    Json(response)
+    Ok(Json(response))
 }
 
 #[handler]
@@ -25,11 +25,11 @@ pub fn sign_in(Json(data): Json<SignInRequest>, Data(store): Data<&Arc<Mutex<Sto
         Ok(user_id) => {
             let response = SignInResponse {
                 message: String::from("SUCCESS"),
-                jwt: user_id.to_string()
+                jwt: user_id
             };
 
             Ok(Json(response))
         }
-        Err(_e) => Err(Error::from_status(StatusCode::UNAUTHORIZED))
+        Err(_) => Err(Error::from_status(StatusCode::UNAUTHORIZED))
     }
 }
