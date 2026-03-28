@@ -14,7 +14,9 @@ pub struct SignInResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct GetWebsiteResponse {
-    pub url: String
+    pub url: String,
+    pub id: String,
+    pub user_id: String
 }
 
 #[derive(Serialize, Deserialize)]

@@ -8,8 +8,8 @@ use store::store::Store;
 use crate::{request::{SignInRequest, SignUpRequest}, response::{SignInResponse, SignUpResponse}};
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: String,
+pub struct Claims {
+    pub sub: String,
     exp: usize
 }
 

@@ -13,11 +13,6 @@ pub struct SignInRequest {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct GetWebsiteRequest {
-    pub website_id: String
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct CreateWebsiteRequest {
     pub url: String
 }

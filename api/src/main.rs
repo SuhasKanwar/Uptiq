@@ -8,6 +8,7 @@ use crate::routes::{user::{sign_in, sign_up}, website::{create_website, get_webs
 pub mod request;
 pub mod response;
 pub mod routes;
+pub mod auth_middleware;
 
 #[handler]
 fn index() -> String {
@@ -20,9 +21,9 @@ async fn main() -> Result<(), Error> {
 
     let app = Route::new()
         .at("/", get(index))
-        .at("/signup", post(sign_up))
-        .at("/signin", post(sign_in))
-        .at("/website/:website_id", get(get_website))
+        .at("/user/signup", post(sign_up))
+        .at("/user/signin", post(sign_in))
+        .at("/status/:website_id", get(get_website))
         .at("/website", post(create_website))
         .data(store);
     
