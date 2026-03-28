@@ -8,6 +8,7 @@ use crate::routes::{user::{sign_in, sign_up}, website::{create_website, get_webs
 pub mod request;
 pub mod response;
 pub mod routes;
+pub mod config;
 pub mod auth_middleware;
 
 #[handler]

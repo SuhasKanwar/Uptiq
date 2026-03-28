@@ -1,7 +1,7 @@
 use jsonwebtoken::{DecodingKey, Validation, decode};
 use poem::{Error, FromRequest, Request, RequestBody, Result, http::{StatusCode, status}};
 
-use crate::routes::user::Claims;
+use crate::{config::Config, routes::user::Claims};
 
 pub struct UserId(pub String);
 
@@ -10,6 +10,8 @@ impl<'a> FromRequest<'a> for UserId {
         req: &'a Request,
         _body: &mut RequestBody,
     ) -> Result<Self> {
+        let config = Config::default();
+
         let token = req
             .headers()
             .get("authorization")
@@ -18,7 +20,7 @@ impl<'a> FromRequest<'a> for UserId {
 
         let decoded = decode::<Claims>(
             &token,
-            &DecodingKey::from_secret("secret".as_ref()),
+            &DecodingKey::from_secret(config.jwt_secret.as_ref()),
             &Validation::default()
         ).map_err(|_| Error::from_string("token malformed", StatusCode::UNAUTHORIZED))?;
 
