@@ -1,4 +1,5 @@
 use crate::{schema::user, store::Store};
+use bcrypt::{DEFAULT_COST, hash, verify};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,10 +14,12 @@ struct User {
 
 impl Store {
     pub fn sign_up(&mut self, username: String, password: String) -> Result<String, diesel::result::Error> {
+        let hashed_password = hash(password, DEFAULT_COST)
+            .map_err(|_| diesel::result::Error::RollbackTransaction)?;
         let new_user = User {
             id: Uuid::new_v4().to_string(),
             username,
-            password,
+            password: hashed_password,
         };
 
         let result = diesel::insert_into(user::table)
@@ -36,7 +39,9 @@ impl Store {
             .select(User::as_select())
             .first(&mut self.conn)?;
 
-        if user.password != password {
+        let valid_password = verify(user.password, &password).map_err(|_| diesel::result::Error::RollbackTransaction)?;
+
+        if !valid_password {
             return Err(diesel::result::Error::NotFound);
         }
 
