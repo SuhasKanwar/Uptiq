@@ -1,19 +1,26 @@
-use std::{io::Error, sync::{Arc, Mutex}};
 use poem::{EndpointExt, Route, Server, get, handler, listener::TcpListener, post};
+use std::{
+    io::Error,
+    sync::{Arc, Mutex},
+};
 
 use store::store::Store;
 
-use crate::routes::{user::{sign_in, sign_up}, website::{create_website, get_website}};
+use crate::routes::{
+    user::{sign_in, sign_up},
+    website::{create_website, delete_website, get_website, list_websites, update_website},
+};
 
+pub mod auth_middleware;
+pub mod config;
 pub mod request;
 pub mod response;
 pub mod routes;
-pub mod config;
-pub mod auth_middleware;
+pub mod utils;
 
 #[handler]
 fn index() -> String {
-    String::from("Server is running successfully!!!")
+    String::from("Uptiq API server is running successfully!!!")
 }
 
 #[handler]
@@ -30,10 +37,13 @@ async fn main() -> Result<(), Error> {
         .at("/health", get(health_check))
         .at("/user/signup", post(sign_up))
         .at("/user/signin", post(sign_in))
-        .at("/status/:website_id", get(get_website))
-        .at("/website", post(create_website))
+        .at("/websites", post(create_website).get(list_websites))
+        .at(
+            "/websites/:id",
+            get(get_website).put(update_website).delete(delete_website),
+        )
         .data(store);
-    
+
     Server::new(TcpListener::bind("0.0.0.0:6969"))
         .run(app)
         .await

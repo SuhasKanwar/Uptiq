@@ -1,23 +1,23 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SignUpRequest {
     pub username: String,
-    pub password: String
+    pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SignInRequest {
     pub username: String,
-    pub password: String
+    pub password: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateWebsiteRequest {
-    pub url: String
+    pub url: String,
 }
 
-pub struct CreateUserRequest {
-    pub username: String,
-    pub password: String
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateWebsiteRequest {
+    pub url: String,
 }

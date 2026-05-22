@@ -1,0 +1,606 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Uptiq — Uptime Monitor API",
+    "description": "Complete API collection for Uptiq, a scalable website monitoring platform.\n\n**Base URL:** `{{base_url}}` (default: http://localhost:6969)\n\n**Auth:** After calling `Sign In`, the JWT is automatically saved to the `{{jwt_token}}` collection variable and used by all protected routes via the `Authorization` header.\n\n### Quick Start\n1. Run **Sign Up** to create an account.\n2. Run **Sign In** — the token is auto-saved.\n3. Use any **Websites** endpoint.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:6969",
+      "type": "string",
+      "description": "Base URL of the Uptiq API server."
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string",
+      "description": "JWT token — automatically populated after a successful Sign In."
+    },
+    {
+      "key": "website_id",
+      "value": "",
+      "type": "string",
+      "description": "ID of a website resource — automatically populated after Create Website."
+    }
+  ],
+  "item": [
+    {
+      "name": "Meta",
+      "description": "Health and status endpoints.",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Returns a string confirming the API server is running."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/",
+                  "host": ["{{base_url}}"],
+                  "path": [""]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                { "key": "Content-Type", "value": "text/plain" }
+              ],
+              "body": "Uptiq API server is running successfully!!!"
+            }
+          ]
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Lightweight liveness probe — returns `OK` when the server is up."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "plain",
+              "header": [
+                { "key": "Content-Type", "value": "text/plain" }
+              ],
+              "body": "OK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "User registration and authentication.",
+      "item": [
+        {
+          "name": "Sign Up",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    console.log('User created with id:', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"supersecret123\"\n}",
+              "options": {
+                "raw": { "language": "json" }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user/signup",
+              "host": ["{{base_url}}"],
+              "path": ["user", "signup"]
+            },
+            "description": "Create a new user account.\n\n**Returns:** `201`-style `200 OK` with the new user's UUID.\n\n**Errors:**\n- `409 Conflict` — username is already taken."
+          },
+          "response": [
+            {
+              "name": "200 — Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"supersecret123\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user/signup",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "signup"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"SUCCESS\",\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\"\n}"
+            },
+            {
+              "name": "409 — Username Taken",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"anotherpassword\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user/signup",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "signup"]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "plain",
+              "header": [],
+              "body": "Conflict"
+            }
+          ]
+        },
+        {
+          "name": "Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', json.jwt);",
+                  "    console.log('Token saved to jwt_token variable.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"supersecret123\"\n}",
+              "options": {
+                "raw": { "language": "json" }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user/signin",
+              "host": ["{{base_url}}"],
+              "path": ["user", "signin"]
+            },
+            "description": "Authenticate with username and password.\n\n**On success:** The JWT is automatically saved to the `{{jwt_token}}` collection variable and used by all subsequent protected requests.\n\nToken validity: **30 days**.\n\n**Errors:**\n- `401 Unauthorized` — wrong credentials."
+          },
+          "response": [
+            {
+              "name": "200 — OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"supersecret123\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user/signin",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "signin"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"SUCCESS\",\n  \"jwt\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDAiLCJleHAiOjE3NTE2NzIwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\"\n}"
+            },
+            {
+              "name": "401 — Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"wrongpassword\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user/signin",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "signin"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "plain",
+              "header": [],
+              "body": "Unauthorized"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Websites",
+      "description": "CRUD operations for monitored websites.\n\nAll endpoints require a valid JWT in the `Authorization` header (`Bearer <token>`). The `{{jwt_token}}` variable is populated automatically after **Sign In**.",
+      "item": [
+        {
+          "name": "Create Website",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('website_id', json.id);",
+                  "    console.log('Website id saved:', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com\"\n}",
+              "options": {
+                "raw": { "language": "json" }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/websites",
+              "host": ["{{base_url}}"],
+              "path": ["websites"]
+            },
+            "description": "Add a new website to the monitoring list.\n\nThe website is automatically associated with the authenticated user.\n\n**On success:** The new website's `id` is saved to `{{website_id}}` for use in subsequent requests."
+          },
+          "response": [
+            {
+              "name": "200 — Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"https://example.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/websites",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"SUCCESS\",\n  \"id\": \"7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b\"\n}"
+            },
+            {
+              "name": "401 — Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"https://example.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/websites",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "plain",
+              "header": [],
+              "body": "Missing authorization header"
+            }
+          ]
+        },
+        {
+          "name": "List Websites",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/websites",
+              "host": ["{{base_url}}"],
+              "path": ["websites"]
+            },
+            "description": "Retrieve all websites owned by the authenticated user, sorted by most recently added first."
+          },
+          "response": [
+            {
+              "name": "200 — OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/websites",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"websites\": [\n    {\n      \"id\": \"7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b\",\n      \"url\": \"https://example.com\",\n      \"user_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"time_added\": 1748012800\n    },\n    {\n      \"id\": \"1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d\",\n      \"url\": \"https://api.myservice.io\",\n      \"user_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"time_added\": 1747926400\n    }\n  ]\n}"
+            },
+            {
+              "name": "200 — Empty List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/websites",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"websites\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Website",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/websites/{{website_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["websites", "{{website_id}}"]
+            },
+            "description": "Fetch a single website by its UUID.\n\nOnly returns the website if it belongs to the authenticated user.\n\n**Errors:**\n- `404 Not Found` — website doesn't exist or belongs to another user."
+          },
+          "response": [
+            {
+              "name": "200 — OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/websites/7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites", "7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"website\": {\n    \"id\": \"7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b\",\n    \"url\": \"https://example.com\",\n    \"user_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"time_added\": 1748012800\n  }\n}"
+            },
+            {
+              "name": "404 — Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/websites/00000000-0000-0000-0000-000000000000",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites", "00000000-0000-0000-0000-000000000000"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "plain",
+              "header": [],
+              "body": "Not Found"
+            }
+          ]
+        },
+        {
+          "name": "Update Website",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://updated-example.com\"\n}",
+              "options": {
+                "raw": { "language": "json" }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/websites/{{website_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["websites", "{{website_id}}"]
+            },
+            "description": "Update the monitored URL for an existing website.\n\nOnly the owner of the website can update it.\n\n**Errors:**\n- `404 Not Found` — website doesn't exist or belongs to another user."
+          },
+          "response": [
+            {
+              "name": "200 — OK",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"https://updated-example.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/websites/7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites", "7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"SUCCESS\",\n  \"website\": {\n    \"id\": \"7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b\",\n    \"url\": \"https://updated-example.com\",\n    \"user_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"time_added\": 1748012800\n  }\n}"
+            },
+            {
+              "name": "404 — Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"https://updated-example.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/websites/00000000-0000-0000-0000-000000000000",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites", "00000000-0000-0000-0000-000000000000"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "plain",
+              "header": [],
+              "body": "Not Found"
+            }
+          ]
+        },
+        {
+          "name": "Delete Website",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/websites/{{website_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["websites", "{{website_id}}"]
+            },
+            "description": "Remove a website from the monitoring list.\n\nOnly the owner of the website can delete it.\n\n**Errors:**\n- `404 Not Found` — website doesn't exist or belongs to another user."
+          },
+          "response": [
+            {
+              "name": "200 — OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/websites/7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites", "7f3a1c2e-4b5d-6e7f-8a9b-0c1d2e3f4a5b"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"SUCCESS\"\n}"
+            },
+            {
+              "name": "404 — Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/websites/00000000-0000-0000-0000-000000000000",
+                  "host": ["{{base_url}}"],
+                  "path": ["websites", "00000000-0000-0000-0000-000000000000"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "plain",
+              "header": [],
+              "body": "Not Found"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
