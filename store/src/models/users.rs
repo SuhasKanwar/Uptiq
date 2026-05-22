@@ -14,6 +14,16 @@ struct User {
 
 impl Store {
     pub fn sign_up(&mut self, username: String, password: String) -> Result<String, diesel::result::Error> {
+        let existing_user = user::table
+            .filter(user::username.eq(&username))
+            .select(User::as_select())
+            .first::<User>(&mut self.conn)
+            .optional()?;
+
+        if existing_user.is_some() {
+            return Err(diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, Box::new("Username already exists".to_string())));
+        }
+
         let hashed_password = hash(password, DEFAULT_COST)
             .map_err(|_| diesel::result::Error::RollbackTransaction)?;
         let new_user = User {
@@ -37,12 +47,15 @@ impl Store {
         let user = user::table
             .filter(user::username.eq(username))
             .select(User::as_select())
-            .first(&mut self.conn)?;
-
-        let valid_password = verify(user.password, &password).map_err(|_| diesel::result::Error::RollbackTransaction)?;
+            .first(&mut self.conn)
+            .optional()?
+            .ok_or(diesel::result::Error::NotFound)?;
+        
+        let valid_password = verify(password, &user.password)
+            .map_err(|_| diesel::result::Error::RollbackTransaction)?;
 
         if !valid_password {
-            return Err(diesel::result::Error::NotFound);
+            return Err(diesel::result::Error::RollbackTransaction);
         }
 
         Ok(user.id)

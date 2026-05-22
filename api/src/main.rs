@@ -16,12 +16,18 @@ fn index() -> String {
     String::from("Server is running successfully!!!")
 }
 
+#[handler]
+fn health_check() -> String {
+    String::from("OK")
+}
+
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Error> {
     let store = Arc::new(Mutex::new(Store::new().unwrap()));
 
     let app = Route::new()
         .at("/", get(index))
+        .at("/health", get(health_check))
         .at("/user/signup", post(sign_up))
         .at("/user/signin", post(sign_in))
         .at("/status/:website_id", get(get_website))

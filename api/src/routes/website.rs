@@ -24,7 +24,7 @@ pub fn get_website(
 pub fn create_website(
     Json(data): Json<CreateWebsiteRequest>,
     Data(store): Data<&Arc<Mutex<Store>>>,
-    UserId(user_id): UserId
+    UserId(_user_id): UserId
 ) -> Json<CreateWebsiteResponse> {
     let url = data.url;
 
