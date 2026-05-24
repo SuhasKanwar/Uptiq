@@ -1,7 +1,9 @@
-pub mod schema;
 pub mod config;
-pub mod store;
-pub mod models;
 pub mod error;
+pub mod models;
+pub mod schema;
+pub mod store;
 
 pub use error::StoreError;
+pub use models::ticks::{WebsiteStatus, WebsiteTick};
+pub use models::websites::Website;

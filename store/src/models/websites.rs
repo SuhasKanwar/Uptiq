@@ -3,7 +3,7 @@ use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-#[derive(Queryable, Insertable, Selectable)]
+#[derive(Queryable, Insertable, Selectable, Clone)]
 #[diesel(table_name = crate::schema::website)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Website {
@@ -11,6 +11,7 @@ pub struct Website {
     pub url: String,
     pub user_id: String,
     pub time_added: NaiveDateTime,
+    pub is_active: bool,
 }
 
 impl Store {
@@ -20,6 +21,7 @@ impl Store {
             url,
             user_id,
             time_added: Utc::now().naive_utc(),
+            is_active: true,
         };
 
         let website = diesel::insert_into(crate::schema::website::table)
@@ -54,6 +56,19 @@ impl Store {
         let websites = website::table
             .filter(website::user_id.eq(user_id))
             .order(website::time_added.desc())
+            .select(Website::as_select())
+            .load(&mut self.conn)
+            .map_err(StoreError::from)?;
+
+        Ok(websites)
+    }
+
+    pub fn list_active_websites(&mut self) -> Result<Vec<Website>, StoreError> {
+        use crate::schema::website;
+
+        let websites = website::table
+            .filter(website::is_active.eq(true))
+            .order(website::time_added.asc())
             .select(Website::as_select())
             .load(&mut self.conn)
             .map_err(StoreError::from)?;
