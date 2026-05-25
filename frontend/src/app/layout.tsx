@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Uptiq",
@@ -42,7 +44,11 @@ export default function RootLayout({
       lang="en"
       className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-(--background-color) text-(--white-color) overflow-x-hidden font-['Space_Grotesk']">
+        <Navbar />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

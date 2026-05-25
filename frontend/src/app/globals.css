@@ -1,1 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
+:root {
+  --background-color: #0f0f19;
+  --white-color: #f7f7ff;
+  --primary-color: #2ca58d;
+  --secondary-color: #7f7b82;
+  --border-color: #747274;
+  --surface-color: #16162a;
+  --surface-lighter: #1e1e3a;
+  --accent-glow: rgba(44, 165, 141, 0.15);
+}
+
+@keyframes float-card {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+a, button {
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary-color) 65%, transparent);
+  border-radius: 999px;
+  border: 2px solid var(--background-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) var(--background-color);
+}
