@@ -100,7 +100,7 @@ export default function HeroSection() {
                     </div>
                 </div>
 
-                <div className="relative flex h-87.5 w-full items-center justify-center md:h-112.5 lg:h-150">
+                <div className="relative flex h-112 w-full items-center justify-center md:h-112.5 lg:h-150">
                     <div className="absolute inset-0">
                         <GlobeScene />
                     </div>
