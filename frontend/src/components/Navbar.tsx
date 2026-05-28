@@ -1,61 +1,135 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 
+const navLinks = [
+    { label: "Signals", href: "#signals" },
+    { label: "Workflow", href: "#workflow" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "GitHub", href: "https://github.com/SuhasKanwar/Uptiq", external: true },
+];
+
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
-    const navLinks = [
-        { label: "Features", href: "#features" },
-        { label: "How It Works", href: "#how-it-works" },
-        { label: "Pricing", href: "#pricing" },
-        { label: "GitHub", href: "https://github.com/SuhasKanwar/Uptiq", external: true },
-    ];
+    const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
+        const handleScroll = () => setScrolled(window.scrollY > 16);
+        handleScroll();
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     return (
-        <nav
-            className={`fixed inset-x-0 top-0 z-100 border-b border-transparent bg-(--background-color)/60 px-8 py-4 backdrop-blur-[20px] transition-all duration-300 ${scrolled ? "border-b border-(--accent-glow) bg-(--background-color)/90" : ""}`}
-        >
-            <div className="mx-auto flex max-w-7xl items-center justify-between">
-                <Link href="/" className="text-(--white-color)">
-                    <Logo
-                        size="lg"
-                        priority
-                        imageClassName="shadow-[0_0_20px_var(--accent-glow)]"
-                    />
-                </Link>
+        <header className="fixed inset-x-0 top-0 z-[100] px-4 pt-4 sm:px-6">
+            <nav
+                className={`mx-auto max-w-7xl border transition duration-300 ${
+                    scrolled
+                        ? "border-white/[0.14] bg-[#081015]/[0.86] shadow-[0_16px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+                        : "border-white/[0.08] bg-[#081015]/[0.48] backdrop-blur-md"
+                }`}
+            >
+                <div className="flex min-h-16 items-center justify-between px-4 sm:px-5">
+                    <Link href="/" className="flex items-center text-(--white-color)" onClick={() => setMenuOpen(false)}>
+                        <Logo
+                            size="lg"
+                            priority
+                            imageClassName="rounded-none shadow-[0_0_24px_rgba(65,209,170,0.2)]"
+                            textClassName="font-semibold"
+                        />
+                    </Link>
 
-                <ul className="hidden list-none items-center gap-8 md:flex">
-                    {navLinks.map((link) => (
-                        <li key={link.label}>
-                            <Link
-                                href={link.href}
-                                target={link.external ? "_blank" : undefined}
-                                rel={link.external ? "noopener noreferrer" : undefined}
-                                className="relative text-sm font-medium text-(--secondary-color) transition-colors hover:text-(--white-color) after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:rounded after:bg-(--primary-color) after:transition-all after:duration-300 hover:after:w-full"
-                            >
-                                {link.label}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
+                    <ul className="hidden items-center gap-1 md:flex">
+                        {navLinks.map((link) => (
+                            <li key={link.label}>
+                                <Link
+                                    href={link.href}
+                                    target={link.external ? "_blank" : undefined}
+                                    rel={link.external ? "noopener noreferrer" : undefined}
+                                    className="px-4 py-2 text-sm font-medium text-(--secondary-color) transition hover:bg-white/[0.055] hover:text-(--white-color)"
+                                >
+                                    {link.label}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
 
-                <div className="flex items-center gap-3">
-                    <button className="rounded-lg px-5 py-2 text-sm font-medium text-(--white-color) transition hover:bg-white/5">
-                        Sign In
-                    </button>
-                    <button className="rounded-lg bg-[linear-gradient(135deg,var(--primary-color),var(--primary-color))] px-6 py-2 text-sm font-semibold text-white shadow-[0_0_20px_var(--accent-glow)] transition hover:-translate-y-0.5 hover:shadow-[0_0_30px_var(--accent-glow)]">
-                        Get Started
+                    <div className="hidden items-center gap-2 md:flex">
+                        <Link
+                            href="/signin"
+                            className="px-4 py-2 text-sm font-semibold text-(--white-color) transition hover:bg-white/[0.055]"
+                        >
+                            Sign in
+                        </Link>
+                        <Link
+                            href="/signup"
+                            className="bg-(--white-color) px-4 py-2 text-sm font-semibold text-[#06100d] transition hover:bg-(--primary-color)"
+                        >
+                            Get started
+                        </Link>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="inline-flex h-10 w-10 items-center justify-center border border-white/[0.12] text-(--white-color) transition hover:bg-white/[0.07] md:hidden"
+                        aria-label="Toggle navigation"
+                        aria-expanded={menuOpen}
+                        onClick={() => setMenuOpen((open) => !open)}
+                    >
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                            {menuOpen ? (
+                                <>
+                                    <path d="M6 6l12 12" />
+                                    <path d="M18 6 6 18" />
+                                </>
+                            ) : (
+                                <>
+                                    <path d="M4 7h16" />
+                                    <path d="M8 12h12" />
+                                    <path d="M4 17h16" />
+                                </>
+                            )}
+                        </svg>
                     </button>
                 </div>
-            </div>
-        </nav>
+
+                {menuOpen ? (
+                    <div className="border-t border-white/[0.1] px-4 pb-4 pt-2 md:hidden">
+                        <div className="grid gap-1">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.label}
+                                    href={link.href}
+                                    target={link.external ? "_blank" : undefined}
+                                    rel={link.external ? "noopener noreferrer" : undefined}
+                                    className="px-3 py-3 text-sm font-medium text-(--secondary-color) transition hover:bg-white/[0.055] hover:text-(--white-color)"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                            <Link
+                                href="/signin"
+                                className="px-3 py-3 text-center text-sm font-semibold text-(--white-color) ring-1 ring-white/[0.12]"
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Sign in
+                            </Link>
+                            <Link
+                                href="/signup"
+                                className="bg-(--primary-color) px-3 py-3 text-center text-sm font-semibold text-[#06100d]"
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Get started
+                            </Link>
+                        </div>
+                    </div>
+                ) : null}
+            </nav>
+        </header>
     );
 }

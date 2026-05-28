@@ -5,116 +5,114 @@ import dynamic from "next/dynamic";
 const GlobeScene = dynamic(() => import("./GlobeScene"), {
     ssr: false,
     loading: () => (
-        <div className="flex h-full w-full items-center justify-center">
-            <div className="h-15 w-15 animate-spin rounded-full border-2 border-(--accent-glow) border-t-(--primary-color)" />
+        <div className="flex h-full w-full items-center justify-center bg-(--background-color)">
+            <div className="h-12 w-12 animate-spin rounded-full border-2 border-white/[0.1] border-t-(--primary-color)" />
         </div>
     ),
 });
 
+const timeline = [
+    { time: "00:00", label: "Checkout latency drift", state: "watching" },
+    { time: "00:03", label: "Synthetic probe failed in Mumbai", state: "incident" },
+    { time: "00:07", label: "Webhook dispatched to on-call", state: "sent" },
+];
+
+const metrics = [
+    { value: "18", label: "regions" },
+    { value: "2.8s", label: "median signal" },
+    { value: "99.99", label: "SLO target" },
+];
+
 export default function HeroSection() {
-    const stats = [
-        { value: "99.99%", label: "Platform uptime" },
-        { value: "<3s", label: "Detection time" },
-        { value: "Multi-region", label: "Distributed polling" },
-    ];
-
-    const statusCards = [
-        {
-            label: "api.example.com",
-            metric: "42ms",
-            positionClass: "right-[5%] top-[10%]",
-            dotClass: "bg-(--primary-color)",
-            delayClass: "",
-        },
-        {
-            label: "dashboard.io",
-            metric: "128ms",
-            positionClass: "bottom-[25%] left-[0%]",
-            dotClass: "bg-(--primary-color)",
-            delayClass: "[animation-delay:-2s]",
-        },
-        {
-            label: "payments.svc",
-            metric: "timeout",
-            positionClass: "right-[-5%] top-[40%]",
-            dotClass: "bg-(--secondary-color)",
-            delayClass: "[animation-delay:-4s]",
-        },
-    ];
-
     return (
-        <section className="relative flex min-h-screen items-center overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,var(--accent-glow),transparent),radial-gradient(ellipse_60%_40%_at_80%_60%,var(--accent-glow),transparent)]" />
-            <div
-                className="pointer-events-none absolute inset-0 bg-[linear-gradient(var(--accent-glow)_1px,transparent_1px),linear-gradient(90deg,var(--accent-glow)_1px,transparent_1px)] bg-size-[60px_60px]"
-                style={{ maskImage: "radial-gradient(ellipse 70% 50% at 50% 50%, black, transparent)" }}
-            />
+        <section className="relative min-h-screen overflow-hidden bg-(--background-color)">
+            <div className="absolute inset-0 opacity-95">
+                <GlobeScene />
+            </div>
 
-            <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-16 px-8 pb-16 pt-32 text-center lg:grid-cols-2 lg:text-left">
-                <div className="flex flex-col items-center gap-7 lg:items-start">
-                    <h1 className="text-[clamp(2.5rem,5vw,3.75rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-(--white-color)">
-                        Know when your
-                        <br />
-                        services go{" "}
-                        <span className="bg-[linear-gradient(135deg,var(--primary-color),var(--primary-color))] bg-clip-text text-transparent">down</span>
-                        <br />
-                        before your users do.
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,var(--background-color)_0%,rgba(8,11,16,0.92)_28%,rgba(8,11,16,0.62)_58%,rgba(8,11,16,0.22)_100%)]" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,transparent,var(--background-color))]" />
+
+            <div className="relative z-10 mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 items-center gap-12 px-5 pb-16 pt-28 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.58fr)] lg:pt-24">
+                <div className="max-w-3xl">
+                    <div className="mb-7 inline-flex items-center gap-3 border border-white/[0.12] bg-white/[0.04] px-3 py-2 text-xs font-medium uppercase text-(--secondary-color) backdrop-blur-md">
+                        <span className="h-2 w-2 bg-(--primary-color) shadow-[0_0_18px_var(--primary-color)]" />
+                        Live uptime intelligence
+                    </div>
+
+                    <h1 className="max-w-4xl text-5xl font-semibold leading-[0.98] text-(--white-color) sm:text-6xl lg:text-7xl">
+                        See outages form before customers feel them.
                     </h1>
 
-                    <p className="max-w-130 text-[1.1rem] leading-7 text-(--secondary-color)">
-                        Uptiq continuously monitors your websites and APIs from distributed
-                        nodes worldwide. Detect outages in seconds, not minutes — with
-                        instant alerts across Slack, email, and webhooks.
+                    <p className="mt-7 max-w-2xl text-base leading-8 text-(--secondary-color) sm:text-lg">
+                        Uptiq watches every service from distributed probes, correlates the first weak signals, and routes the right alert before an outage becomes a support queue.
                     </p>
 
-                    <div className="mt-2 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+                    <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                         <a
                             href="/signup"
-                            className="inline-flex items-center justify-center gap-2 rounded-[10px] bg-[linear-gradient(135deg,var(--primary-color),var(--primary-color))] px-8 py-3.5 text-[0.95rem] font-semibold text-white shadow-[0_4px_30px_var(--accent-glow)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_40px_var(--accent-glow)]"
+                            className="inline-flex min-h-12 items-center justify-center gap-2 bg-(--primary-color) px-6 text-sm font-semibold text-[#05110e] transition hover:-translate-y-0.5 hover:bg-[#63e0c2] focus:outline-none focus:ring-2 focus:ring-(--primary-color) focus:ring-offset-2 focus:ring-offset-(--background-color)"
                         >
-                            Start Monitoring
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            Start monitoring
+                            <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
                             </svg>
                         </a>
                         <a
                             href="https://github.com/SuhasKanwar/Uptiq"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-(--border-color) px-8 py-3.5 text-[0.95rem] font-medium text-(--white-color) transition hover:border-(--primary-color) hover:bg-(--primary-color)/10"
+                            className="inline-flex min-h-12 items-center justify-center gap-2 border border-white/[0.14] bg-white/[0.035] px-6 text-sm font-semibold text-(--white-color) backdrop-blur-md transition hover:border-white/[0.28] hover:bg-white/[0.07]"
                         >
-                            View on GitHub
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                            </svg>
+                            Inspect the repo
                         </a>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap justify-center gap-6 border-t border-white/5 pt-6 lg:justify-start">
-                        {stats.map((stat) => (
-                            <div key={stat.label} className="flex flex-col gap-1">
-                                <span className="text-2xl font-bold text-(--white-color)">{stat.value}</span>
-                                <span className="text-xs font-normal text-(--secondary-color)">{stat.label}</span>
+                    <div className="mt-11 grid max-w-xl grid-cols-3 border-y border-white/[0.1]">
+                        {metrics.map((metric) => (
+                            <div key={metric.label} className="border-r border-white/[0.1] py-5 last:border-r-0">
+                                <div className="text-2xl font-semibold text-(--white-color)">{metric.value}</div>
+                                <div className="mt-1 text-xs uppercase text-(--secondary-color)">{metric.label}</div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="relative flex h-112 w-full items-center justify-center md:h-112.5 lg:h-150">
-                    <div className="absolute inset-0">
-                        <GlobeScene />
-                    </div>
-                    {statusCards.map((card) => (
-                        <div
-                            key={card.label}
-                            className={`hidden md:flex absolute ${card.positionClass} z-10 items-center gap-2 rounded-[10px] border border-(--accent-glow) bg-(--surface-color)/85 px-3 py-2 text-xs font-medium text-(--white-color) shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-md animate-[float-card_6s_ease-in-out_infinite] ${card.delayClass}`}
-                        >
-                            <span className={`h-2 w-2 shrink-0 rounded-full ${card.dotClass} shadow-[0_0_8px_var(--accent-glow)]`} />
-                            {card.label}
-                            <span className="text-[0.7rem] text-(--secondary-color)">{card.metric}</span>
+                <aside className="w-full border border-white/[0.12] bg-[#0b1015]/[0.78] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.38)] backdrop-blur-xl lg:justify-self-end">
+                    <div className="flex items-center justify-between border-b border-white/[0.1] pb-4">
+                        <div>
+                            <p className="text-xs uppercase text-(--secondary-color)">Incident trace</p>
+                            <h2 className="mt-1 text-lg font-semibold text-(--white-color)">payments.api</h2>
                         </div>
-                    ))}
-                </div>
+                        <span className="border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-3 py-1 text-xs font-semibold text-[#fbbf24]">
+                            degraded
+                        </span>
+                    </div>
+
+                    <div className="mt-5 space-y-3">
+                        {timeline.map((item) => (
+                            <div key={item.time} className="grid grid-cols-[54px_1fr] gap-4 border border-white/[0.08] bg-white/[0.035] p-3">
+                                <span className="font-mono text-xs text-(--secondary-color)">{item.time}</span>
+                                <div>
+                                    <p className="text-sm font-medium text-(--white-color)">{item.label}</p>
+                                    <p className="mt-1 text-xs uppercase text-(--secondary-color)">{item.state}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                        <div className="border border-white/[0.08] bg-white/[0.035] p-3">
+                            <p className="text-xs text-(--secondary-color)">Response</p>
+                            <p className="mt-2 text-2xl font-semibold text-(--white-color)">421ms</p>
+                        </div>
+                        <div className="border border-white/[0.08] bg-white/[0.035] p-3">
+                            <p className="text-xs text-(--secondary-color)">Loss</p>
+                            <p className="mt-2 text-2xl font-semibold text-[#f87171]">4.1%</p>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </section>
     );
