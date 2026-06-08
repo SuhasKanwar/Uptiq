@@ -44,7 +44,7 @@ async fn main() -> Result<(), Error> {
         )
         .data(store);
 
-    Server::new(TcpListener::bind("0.0.0.0:6969"))
+    Server::new(TcpListener::bind("0.0.0.0:5000"))
         .run(app)
         .await
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import ContextProvider from "@/providers/ContextProvider";
 
 export const metadata: Metadata = {
   title: "Uptiq",
@@ -45,9 +46,11 @@ export default function RootLayout({
       className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col bg-(--background-color) text-(--white-color) overflow-x-hidden font-['Space_Grotesk']">
-        <Navbar />
-        {children}
-        <Footer />
+        <ContextProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </ContextProvider>
       </body>
     </html>
   );
