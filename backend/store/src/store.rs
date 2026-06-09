@@ -3,7 +3,7 @@ use diesel::{Connection, ConnectionError, PgConnection};
 use crate::config::Config;
 
 pub struct Store {
-    pub conn: PgConnection
+    pub conn: PgConnection,
 }
 
 impl Store {

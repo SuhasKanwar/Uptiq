@@ -1,0 +1,98 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: uptiq_db
+    environment:
+      POSTGRES_USER: uptiq_user
+      POSTGRES_PASSWORD: uptiq_password
+      POSTGRES_DB: uptiq_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptiq_user -d uptiq_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: uptiq_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  migrator:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: uptiq_migrator
+    command: ["diesel", "migration", "run"]
+    environment:
+      - DATABASE_URL=postgres://uptiq_user:uptiq_password@db:5432/uptiq_db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: uptiq_api
+    command: ["api"]
+    environment:
+      - DATABASE_URL=postgres://uptiq_user:uptiq_password@db:5432/uptiq_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=super_secret_jwt_key_for_uptiq
+      - RUST_LOG=info
+    ports:
+      - "5000:5000"
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: uptiq_worker
+    command: ["worker"]
+    environment:
+      - DATABASE_URL=postgres://uptiq_user:uptiq_password@db:5432/uptiq_db
+      - REDIS_URL=redis://redis:6379
+      - RUST_LOG=info
+      - POLL_INTERVAL_SECS=60
+      - WORKER_COUNT=10
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: uptiq_frontend
+    environment:
+      # Browser needs to access the API via localhost
+      - HTTP_BASE_URL=http://localhost:5000
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=super_secret_nextauth_key
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
