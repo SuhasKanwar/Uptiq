@@ -10,8 +10,8 @@ use crate::{
     auth_middleware::UserId,
     request::{CreateWebsiteRequest, UpdateWebsiteRequest},
     response::{
-        CreateWebsiteResponse, DeleteWebsiteResponse, GetWebsiteResponse, ListWebsitesResponse,
-        UpdateWebsiteResponse, WebsiteItem,
+        CreateWebsiteResponse, DeleteWebsiteResponse, GetWebsiteResponse, ListWebsiteTicksResponse,
+        ListWebsitesResponse, UpdateWebsiteResponse, WebsiteItem, WebsiteTickItem,
     },
     utils::store_err_to_http,
 };
@@ -119,4 +119,33 @@ pub fn delete_website(
     Ok(Json(DeleteWebsiteResponse {
         message: String::from("SUCCESS"),
     }))
+}
+
+#[handler]
+pub fn list_website_ticks(
+    Path(website_id): Path<String>,
+    Data(store): Data<&Arc<Mutex<Store>>>,
+    UserId(user_id): UserId,
+) -> Result<Json<ListWebsiteTicksResponse>> {
+    let ticks = store
+        .lock()
+        .unwrap()
+        .list_ticks(website_id, user_id, 100)
+        .map_err(store_err_to_http)?;
+
+    let items = ticks
+        .into_iter()
+        .map(|t| WebsiteTickItem {
+            id: t.id,
+            response_time_ms: t.response_time_ms,
+            status: match t.status {
+                store::WebsiteStatus::Up => String::from("Up"),
+                store::WebsiteStatus::Down => String::from("Down"),
+                store::WebsiteStatus::Unknown => String::from("Unknown"),
+            },
+            created_at: t.created_at.and_utc().timestamp(),
+        })
+        .collect();
+
+    Ok(Json(ListWebsiteTicksResponse { ticks: items }))
 }

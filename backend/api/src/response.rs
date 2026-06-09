@@ -46,3 +46,16 @@ pub struct UpdateWebsiteResponse {
 pub struct DeleteWebsiteResponse {
     pub message: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WebsiteTickItem {
+    pub id: String,
+    pub response_time_ms: i32,
+    pub status: String,
+    pub created_at: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ListWebsiteTicksResponse {
+    pub ticks: Vec<WebsiteTickItem>,
+}

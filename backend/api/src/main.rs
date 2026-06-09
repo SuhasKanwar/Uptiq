@@ -10,7 +10,10 @@ use store::store::Store;
 
 use crate::routes::{
     user::{sign_in, sign_up},
-    website::{create_website, delete_website, get_website, list_websites, update_website},
+    website::{
+        create_website, delete_website, get_website, list_website_ticks, list_websites,
+        update_website,
+    },
 };
 
 pub mod auth_middleware;
@@ -44,6 +47,7 @@ async fn main() -> Result<(), Error> {
             "/websites/:id",
             get(get_website).put(update_website).delete(delete_website),
         )
+        .at("/websites/:id/ticks", get(list_website_ticks))
         .data(store)
         .with(Cors::new());
 
