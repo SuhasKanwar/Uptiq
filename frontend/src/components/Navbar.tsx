@@ -28,11 +28,10 @@ export default function Navbar() {
     return (
         <header className="fixed inset-x-0 top-0 z-[100] px-4 pt-4 sm:px-6">
             <nav
-                className={`mx-auto max-w-7xl border transition duration-300 ${
-                    scrolled
+                className={`mx-auto max-w-7xl border transition duration-300 ${scrolled
                         ? "border-white/[0.14] bg-[#081015]/[0.86] shadow-[0_16px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl"
                         : "border-white/[0.08] bg-[#081015]/[0.48] backdrop-blur-md"
-                }`}
+                    }`}
             >
                 <div className="flex min-h-16 items-center justify-between px-4 sm:px-5">
                     <Link href="/" className="flex items-center text-(--white-color)" onClick={() => setMenuOpen(false)}>
@@ -62,9 +61,12 @@ export default function Navbar() {
                     <div className="hidden items-center gap-2 md:flex">
                         {status === "authenticated" ? (
                             <>
-                                <span className="px-4 py-2 text-sm font-medium text-(--secondary-color)">
-                                    {session.user?.name}
-                                </span>
+                                <Link
+                                    href="/dashboard"
+                                    className="px-4 py-2 text-sm font-semibold text-(--primary-color) transition hover:text-[#63e0c2]"
+                                >
+                                    Dashboard
+                                </Link>
                                 <button
                                     onClick={() => signOut()}
                                     className="bg-white/10 px-4 py-2 text-sm font-semibold text-(--white-color) transition hover:bg-white/20"
@@ -120,6 +122,13 @@ export default function Navbar() {
                         <div className="mt-3 grid grid-cols-2 gap-2">
                             {status === "authenticated" ? (
                                 <>
+                                    <Link
+                                        href="/dashboard"
+                                        className="col-span-2 bg-(--primary-color) px-3 py-3 text-center text-sm font-semibold text-[#06100d]"
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        Dashboard
+                                    </Link>
                                     <span className="px-3 py-3 text-center text-sm font-semibold text-(--secondary-color) ring-1 ring-white/[0.12]">
                                         {session.user?.name}
                                     </span>

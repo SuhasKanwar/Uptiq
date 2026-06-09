@@ -1,4 +1,6 @@
-use poem::{EndpointExt, Route, Server, get, handler, listener::TcpListener, post};
+use poem::{
+    EndpointExt, Route, Server, get, handler, listener::TcpListener, middleware::Cors, post,
+};
 use std::{
     io::Error,
     sync::{Arc, Mutex},
@@ -42,7 +44,8 @@ async fn main() -> Result<(), Error> {
             "/websites/:id",
             get(get_website).put(update_website).delete(delete_website),
         )
-        .data(store);
+        .data(store)
+        .with(Cors::new());
 
     Server::new(TcpListener::bind("0.0.0.0:5000"))
         .run(app)
