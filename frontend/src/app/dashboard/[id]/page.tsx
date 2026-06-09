@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getWebsite, Website } from "@/utils/websites";
-import { Loader2, ArrowLeft, ExternalLink, Activity, Clock, ShieldCheck, BarChart3, TrendingUp } from "lucide-react";
+import { getWebsite, getWebsiteTicks, Website, WebsiteTick } from "@/utils/websites";
+import { Loader2, ArrowLeft, ExternalLink, Activity, Clock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import StatsCard from "@/components/dashboard/StatsCard";
+import ResponseChart from "@/components/dashboard/ResponseChart";
+import { POLLING_TIME } from "@/lib/config";
 
 export default function WebsiteDetailsPage() {
     const params = useParams();
@@ -13,27 +16,48 @@ export default function WebsiteDetailsPage() {
     const { status } = useSession({ required: true });
 
     const [website, setWebsite] = useState<Website | null>(null);
+    const [ticks, setTicks] = useState<WebsiteTick[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (status === "authenticated" && params.id) {
-            fetchWebsite(params.id as string);
-        }
-    }, [status, params.id]);
-
     const fetchWebsite = async (id: string) => {
         try {
-            setLoading(true);
             const data = await getWebsite(id);
             setWebsite(data);
             setError("");
         } catch (err: any) {
             setError(err.message || "Failed to load website details.");
-        } finally {
-            setLoading(false);
         }
     };
+
+    const fetchTicks = async (id: string) => {
+        try {
+            const data = await getWebsiteTicks(id);
+            setTicks(data);
+        } catch (err) {
+            console.error("Failed to fetch ticks", err);
+        }
+    };
+
+    useEffect(() => {
+        if (status === "authenticated" && params.id) {
+            const id = params.id as string;
+            setLoading(true);
+            Promise.all([fetchWebsite(id), fetchTicks(id)])
+                .finally(() => setLoading(false));
+        }
+    }, [status, params.id]);
+
+    useEffect(() => {
+        if (status === "authenticated" && params.id) {
+            const id = params.id as string;
+            const interval = setInterval(() => {
+                fetchTicks(id);
+            }, POLLING_TIME);
+
+            return () => clearInterval(interval);
+        }
+    }, [status, params.id]);
 
     if (status === "loading" || loading) {
         return (
@@ -68,15 +92,25 @@ export default function WebsiteDetailsPage() {
         urlObj = { hostname: website.url };
     }
 
-    const mockResponseTimes = Array.from({ length: 24 }, () => Math.floor(Math.random() * 300) + 50);
-    const mockUptime = 99.98;
+    const sortedTicks = [...ticks].sort((a, b) => b.created_at - a.created_at);
+    const latestTick = sortedTicks[0];
+
+    const currentStatus = latestTick ? latestTick.status : "Waiting...";
+    const isUp = currentStatus === "Up";
+
+    const totalTicks = ticks.length;
+    const upTicks = ticks.filter(t => t.status === "Up").length;
+    const uptimePercentage = totalTicks > 0 ? ((upTicks / totalTicks) * 100).toFixed(2) : "0.00";
+
+    const avgResponseTime = totalTicks > 0
+        ? Math.floor(ticks.reduce((sum, t) => sum + t.response_time_ms, 0) / totalTicks)
+        : 0;
 
     return (
         <div className="min-h-[100dvh] bg-(--background-color) pb-24 pt-32 relative overflow-hidden">
             <div className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-(--primary-color) opacity-5 blur-[120px]" />
 
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-                {/* Header Section */}
                 <div className="mb-8">
                     <Link
                         href="/dashboard"
@@ -92,12 +126,14 @@ export default function WebsiteDetailsPage() {
                                 {urlObj.hostname}
                             </h1>
                             <div className="mt-3 flex items-center gap-3">
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-3 py-1 text-xs font-medium text-(--primary-color)">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--primary-color) opacity-75"></span>
-                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-(--primary-color)"></span>
-                                    </span>
-                                    Healthy
+                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${isUp ? 'border-(--primary-color)/20 bg-(--primary-color)/10 text-(--primary-color)' : 'border-yellow-500/20 bg-yellow-500/10 text-yellow-500'}`}>
+                                    {isUp && (
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-(--primary-color) opacity-75"></span>
+                                            <span className="relative inline-flex h-2 w-2 rounded-full bg-(--primary-color)"></span>
+                                        </span>
+                                    )}
+                                    {isUp ? 'Healthy' : currentStatus}
                                 </span>
                                 <span className="text-sm text-(--secondary-color)">
                                     Monitoring active since {new Date(website.time_added * 1000).toLocaleDateString()}
@@ -116,89 +152,31 @@ export default function WebsiteDetailsPage() {
                     </div>
                 </div>
 
-                {/* Grid Layout for Analytics */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
-                    {/* Stat Cards */}
-                    <div className="rounded-2xl border border-white/10 bg-[#0b1015]/60 p-6 shadow-lg backdrop-blur-md flex flex-col justify-center">
-                        <div className="flex items-center gap-3 mb-2 text-(--secondary-color)">
-                            <Activity className="h-5 w-5 text-(--primary-color)" />
-                            <h3 className="font-medium">Current Status</h3>
-                        </div>
-                        <p className="text-3xl font-bold text-(--white-color)">Operational</p>
-                        <p className="mt-2 text-sm text-(--secondary-color)">Last checked: Just now</p>
-                    </div>
+                    <StatsCard
+                        title="Current Status"
+                        icon={<Activity className={`h-5 w-5 ${isUp ? 'text-(--primary-color)' : 'text-yellow-500'}`} />}
+                        value={currentStatus}
+                        subtitle={latestTick ? `Last ping: ${new Date(latestTick.created_at * 1000).toLocaleTimeString()}` : 'No pings yet'}
+                    />
 
-                    <div className="rounded-2xl border border-white/10 bg-[#0b1015]/60 p-6 shadow-lg backdrop-blur-md flex flex-col justify-center">
-                        <div className="flex items-center gap-3 mb-2 text-(--secondary-color)">
-                            <ShieldCheck className="h-5 w-5 text-[#63e0c2]" />
-                            <h3 className="font-medium">Uptime (24h)</h3>
-                        </div>
-                        <div className="flex items-end gap-2">
-                            <p className="text-3xl font-bold text-(--white-color)">{mockUptime}%</p>
-                            <span className="text-sm font-medium text-(--primary-color) mb-1">+0.01%</span>
-                        </div>
-                        <p className="mt-2 text-sm text-(--secondary-color)">0 incidents reported</p>
-                    </div>
+                    <StatsCard
+                        title="Uptime (Rolling)"
+                        icon={<ShieldCheck className="h-5 w-5 text-[#63e0c2]" />}
+                        value={`${uptimePercentage}%`}
+                        subtitle={totalTicks > 0 ? `Based on last ${totalTicks} checks` : 'No data'}
+                    />
 
-                    <div className="rounded-2xl border border-white/10 bg-[#0b1015]/60 p-6 shadow-lg backdrop-blur-md flex flex-col justify-center">
-                        <div className="flex items-center gap-3 mb-2 text-(--secondary-color)">
-                            <Clock className="h-5 w-5 text-blue-400" />
-                            <h3 className="font-medium">Avg Response Time</h3>
-                        </div>
-                        <div className="flex items-end gap-2">
-                            <p className="text-3xl font-bold text-(--white-color)">
-                                {Math.floor(mockResponseTimes.reduce((a, b) => a + b) / mockResponseTimes.length)} ms
-                            </p>
-                        </div>
-                        <p className="mt-2 text-sm text-(--secondary-color)">Consistent performance</p>
-                    </div>
+                    <StatsCard
+                        title="Avg Response Time"
+                        icon={<Clock className="h-5 w-5 text-blue-400" />}
+                        value={`${avgResponseTime} ms`}
+                        subtitle={totalTicks > 0 ? 'Calculated from recent pings' : 'Waiting...'}
+                    />
                 </div>
 
-                {/* Mock Chart Section */}
-                <div className="rounded-2xl border border-white/10 bg-[#0b1015]/60 p-6 shadow-lg backdrop-blur-md">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-white/5 p-2 border border-white/10">
-                                <BarChart3 className="h-5 w-5 text-(--white-color)" />
-                            </div>
-                            <h3 className="text-lg font-medium text-(--white-color)">Response Times (Last 24h)</h3>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm font-medium text-(--primary-color)">
-                            <TrendingUp className="h-4 w-4" />
-                            Optimal
-                        </div>
-                    </div>
+                <ResponseChart ticks={ticks} />
 
-                    <div className="h-64 flex items-end justify-between gap-1 sm:gap-2">
-                        {mockResponseTimes.map((val, i) => {
-                            const max = Math.max(...mockResponseTimes);
-                            const heightPercentage = (val / max) * 100;
-                            // Color logic: green if fast, yellow/red if slow. Since it's mock, we'll keep it sleek.
-                            const isHigh = heightPercentage > 80;
-                            return (
-                                <div key={i} className="group relative flex w-full flex-col items-center justify-end h-full">
-                                    <div
-                                        style={{ height: `${heightPercentage}%` }}
-                                        className={`w-full rounded-t-sm transition-all duration-500 hover:opacity-100 cursor-crosshair ${isHigh ? 'bg-white/40' : 'bg-(--primary-color)/70 opacity-50'}`}
-                                    ></div>
-                                    {/* Tooltip on hover */}
-                                    <div className="absolute bottom-full mb-2 hidden group-hover:block z-20">
-                                        <div className="rounded bg-black/80 px-2 py-1 text-xs text-white border border-white/10 whitespace-nowrap shadow-xl">
-                                            {val} ms
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <div className="flex justify-between mt-4 text-xs text-(--secondary-color) border-t border-white/5 pt-4">
-                        <span>24 hours ago</span>
-                        <span>12 hours ago</span>
-                        <span>Now</span>
-                    </div>
-                </div>
-
-                {/* Meta details footer */}
                 <div className="mt-8 flex justify-between items-center text-xs text-white/30 px-2">
                     <p>Internal Tracking ID: {website.id}</p>
                     <p>Uptiq Telemetry System</p>

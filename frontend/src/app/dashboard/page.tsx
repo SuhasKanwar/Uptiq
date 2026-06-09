@@ -7,6 +7,7 @@ import { Plus, Loader2 } from "lucide-react";
 import WebsiteCard from "@/components/dashboard/WebsiteCard";
 import AddWebsiteForm from "@/components/dashboard/AddWebsiteForm";
 import EmptyState from "@/components/dashboard/EmptyState";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 export default function Dashboard() {
     const { data: session, status } = useSession({ required: true });
@@ -16,6 +17,9 @@ export default function Dashboard() {
     const [error, setError] = useState("");
     
     const [isAdding, setIsAdding] = useState(false);
+    
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     
     useEffect(() => {
         if (status === "authenticated") {
@@ -47,24 +51,23 @@ export default function Dashboard() {
         }
     };
 
-    const handleEditSave = async (id: string, newUrl: string) => {
-        try {
-            await updateWebsite(id, newUrl);
-            await fetchWebsites();
-        } catch (err: any) {
-            setError(err.message || "Failed to update website.");
-            throw err;
-        }
+
+    const confirmDelete = (id: string) => {
+        setDeletingId(id);
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this monitored website?")) return;
-        
+    const handleDelete = async () => {
+        if (!deletingId) return;
         try {
-            await deleteWebsite(id);
+            setIsDeleting(true);
+            await deleteWebsite(deletingId);
+            setDeletingId(null);
             await fetchWebsites();
         } catch (err: any) {
             setError(err.message || "Failed to delete website.");
+            setDeletingId(null);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -118,12 +121,22 @@ export default function Dashboard() {
                             <WebsiteCard 
                                 key={website.id}
                                 website={website}
-                                onEditSave={handleEditSave}
-                                onDelete={handleDelete}
+                                onDelete={confirmDelete}
                             />
                         ))}
                     </div>
                 )}
+
+                <ConfirmationModal 
+                    isOpen={deletingId !== null}
+                    title="Delete Website"
+                    message="Are you sure you want to delete this monitored website? All associated telemetry data will be lost. This action cannot be undone."
+                    confirmText="Delete Website"
+                    isDestructive={true}
+                    isLoading={isDeleting}
+                    onConfirm={handleDelete}
+                    onCancel={() => setDeletingId(null)}
+                />
             </div>
         </div>
     );

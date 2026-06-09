@@ -29,8 +29,8 @@ export default function Navbar() {
         <header className="fixed inset-x-0 top-0 z-[100] px-4 pt-4 sm:px-6">
             <nav
                 className={`mx-auto max-w-7xl border transition duration-300 ${scrolled
-                        ? "border-white/[0.14] bg-[#081015]/[0.86] shadow-[0_16px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl"
-                        : "border-white/[0.08] bg-[#081015]/[0.48] backdrop-blur-md"
+                    ? "border-white/[0.14] bg-[#081015]/[0.86] shadow-[0_16px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+                    : "border-white/[0.08] bg-[#081015]/[0.48] backdrop-blur-md"
                     }`}
             >
                 <div className="flex min-h-16 items-center justify-between px-4 sm:px-5">

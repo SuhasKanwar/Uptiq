@@ -30,3 +30,15 @@ export async function updateWebsite(id: string, url: string): Promise<Website> {
 export async function deleteWebsite(id: string): Promise<void> {
     await api.delete(`/websites/${id}`);
 }
+
+export type WebsiteTick = {
+    id: string;
+    response_time_ms: number;
+    status: string; // "Up", "Down", "Unknown"
+    created_at: number; // Unix timestamp
+};
+
+export async function getWebsiteTicks(id: string): Promise<WebsiteTick[]> {
+    const res = await api.get(`/websites/${id}/ticks`);
+    return res.data.ticks || [];
+}
