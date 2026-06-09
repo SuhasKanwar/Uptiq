@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-const text = "We built Uptiq because downtime is unacceptable. Our distributed edge network processes millions of health checks per minute, utilizing advanced consensus algorithms to instantly filter out false positives. When a real incident occurs, our dynamic routing engine springs into action, containing the blast radius before your customers ever notice.";
+const text = "Uptiq ensures zero downtime. Our edge network instantly filters false positives, and when incidents occur, we contain them before your customers ever notice.";
 
 export default function HowItWorksSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -17,17 +17,6 @@ export default function HowItWorksSection() {
   return (
     <section ref={containerRef} className="relative w-full bg-(--background-color) py-[20vh]">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-
-        <div className="mb-20">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-white/70 backdrop-blur-md">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-(--primary-color) opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-(--primary-color)"></span>
-            </span>
-            Architecture Philosophy
-          </div>
-        </div>
-
         <p className="flex flex-wrap gap-x-3 gap-y-4 text-4xl font-medium leading-snug tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
           {words.map((word, i) => {
             const start = i / words.length;

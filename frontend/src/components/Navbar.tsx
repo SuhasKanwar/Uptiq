@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
     { label: "Signals", href: "#signals" },
@@ -14,6 +16,7 @@ const navLinks = [
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 16);
@@ -57,18 +60,34 @@ export default function Navbar() {
                     </ul>
 
                     <div className="hidden items-center gap-2 md:flex">
-                        <Link
-                            href="/signin"
-                            className="px-4 py-2 text-sm font-semibold text-(--white-color) transition hover:bg-white/[0.055]"
-                        >
-                            Sign in
-                        </Link>
-                        <Link
-                            href="/signup"
-                            className="bg-(--white-color) px-4 py-2 text-sm font-semibold text-[#06100d] transition hover:bg-(--primary-color)"
-                        >
-                            Get started
-                        </Link>
+                        {status === "authenticated" ? (
+                            <>
+                                <span className="px-4 py-2 text-sm font-medium text-(--secondary-color)">
+                                    {session.user?.name}
+                                </span>
+                                <button
+                                    onClick={() => signOut()}
+                                    className="bg-white/10 px-4 py-2 text-sm font-semibold text-(--white-color) transition hover:bg-white/20"
+                                >
+                                    Sign out
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/auth/signin"
+                                    className="px-4 py-2 text-sm font-semibold text-(--white-color) transition hover:bg-white/[0.055]"
+                                >
+                                    Sign in
+                                </Link>
+                                <Link
+                                    href="/auth/signup"
+                                    className="bg-(--white-color) px-4 py-2 text-sm font-semibold text-[#06100d] transition hover:bg-(--primary-color)"
+                                >
+                                    Get started
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     <button
@@ -78,20 +97,7 @@ export default function Navbar() {
                         aria-expanded={menuOpen}
                         onClick={() => setMenuOpen((open) => !open)}
                     >
-                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                            {menuOpen ? (
-                                <>
-                                    <path d="M6 6l12 12" />
-                                    <path d="M18 6 6 18" />
-                                </>
-                            ) : (
-                                <>
-                                    <path d="M4 7h16" />
-                                    <path d="M8 12h12" />
-                                    <path d="M4 17h16" />
-                                </>
-                            )}
-                        </svg>
+                        {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                     </button>
                 </div>
 
@@ -112,20 +118,39 @@ export default function Navbar() {
                             ))}
                         </div>
                         <div className="mt-3 grid grid-cols-2 gap-2">
-                            <Link
-                                href="/signin"
-                                className="px-3 py-3 text-center text-sm font-semibold text-(--white-color) ring-1 ring-white/[0.12]"
-                                onClick={() => setMenuOpen(false)}
-                            >
-                                Sign in
-                            </Link>
-                            <Link
-                                href="/signup"
-                                className="bg-(--primary-color) px-3 py-3 text-center text-sm font-semibold text-[#06100d]"
-                                onClick={() => setMenuOpen(false)}
-                            >
-                                Get started
-                            </Link>
+                            {status === "authenticated" ? (
+                                <>
+                                    <span className="px-3 py-3 text-center text-sm font-semibold text-(--secondary-color) ring-1 ring-white/[0.12]">
+                                        {session.user?.name}
+                                    </span>
+                                    <button
+                                        onClick={() => {
+                                            setMenuOpen(false);
+                                            signOut();
+                                        }}
+                                        className="bg-white/10 px-3 py-3 text-center text-sm font-semibold text-(--white-color)"
+                                    >
+                                        Sign out
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link
+                                        href="/auth/signin"
+                                        className="px-3 py-3 text-center text-sm font-semibold text-(--white-color) ring-1 ring-white/[0.12]"
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        Sign in
+                                    </Link>
+                                    <Link
+                                        href="/auth/signup"
+                                        className="bg-(--primary-color) px-3 py-3 text-center text-sm font-semibold text-[#06100d]"
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        Get started
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
                 ) : null}

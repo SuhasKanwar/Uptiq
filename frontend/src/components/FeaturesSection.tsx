@@ -52,14 +52,14 @@ export default function FeaturesSection() {
 
         <div className="absolute left-8 md:left-24 top-24 max-w-xl z-10 pointer-events-none">
           <motion.h2
-            style={{ opacity: useTransform(scrollYProgress, [0, 0.1], [1, 0]) }}
+            style={{ opacity: useTransform(scrollYProgress, [0, 0.05, 1], [1, 0, 0]) }}
             className="text-6xl md:text-8xl font-bold tracking-tighter text-(--white-color)"
           >
             Capabilities that scale.
           </motion.h2>
         </div>
 
-        <motion.div style={{ x }} className="flex gap-8 px-8 md:px-24 pt-32 pb-16 h-full items-center">
+        <motion.div style={{ x }} className="flex gap-8 px-8 pl-[10vw] md:px-24 md:pl-[40vw] pt-32 pb-16 h-full items-center">
           {features.map((feature, index) => {
             return (
               <div

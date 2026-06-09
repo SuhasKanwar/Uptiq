@@ -77,8 +77,10 @@ function TelemetryGrid({ theme }: { theme: Theme }) {
     };
   }, []);
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
+  const timeRef = useRef(0);
+  useFrame((state, delta) => {
+    timeRef.current += delta;
+    const t = timeRef.current;
 
     if (groupRef.current) {
       groupRef.current.rotation.x = -0.82 + Math.sin(t * 0.18) * 0.02;
@@ -151,8 +153,10 @@ function IncidentRibbons({ theme }: { theme: Theme }) {
     });
   }, []);
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
+  const timeRef = useRef(0);
+  useFrame((state, delta) => {
+    timeRef.current += delta;
+    const t = timeRef.current;
     if (groupRef.current) {
       groupRef.current.children.forEach((child, index) => {
         child.position.x = Math.sin(t * 0.45 + index) * 0.22;
